@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Prediksi Tingkat Stres Mahasiswa</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        /* Tambahan style khusus box ruang chat konseling interaktif */
+        .chat-container-box {
+            background-color: #f8fafc;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 20px;
+            padding: 20px;
+            min-height: 250px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .bot-bubble {
+            background-color: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            padding: 15px;
+            font-size: 13.5px;
+            color: #334155;
+            line-height: 1.6;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.01);
+        }
+        .options-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .btn-option-chat {
+            background-color: #ffffff;
+            color: #4f46e5;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 11px 15px;
+            font-size: 13px;
+            font-weight: 500;
+            text-align: left;
+            transition: all 0.2s ease;
+            width: 100%;
+        }
+        .btn-option-chat:hover {
+            background-color: #f1f0ff;
+            border-color: #6c63ff;
+            transform: translateX(3px);
+        }
+    </style>
+</head>
+<body>
+
+<div class="main-card" id="mainCardWrapper">
+    
+    <div class="form-section active" id="section1">
+        <div class="brand-icon-box text-center mb-3" style="display: block; width: 100%;">
+            <img src="{{ url_for('static', filename='img/logo_kampus.png') }}" style="width: 80px; height: auto; margin: 0 auto 15px auto; display: block;" alt="Logo Kampus">
+        </div>
+
+        <h1 class="text-center mb-2" style="font-family: 'Poppins', 'Inter', sans-serif; font-size: 28px; font-weight: 700; color: #1e2e46; letter-spacing: -0.5px;">Sistem Deteksi Tingkat Stres Mahasiswa</h1>
+        <p class="text-muted text-center mb-4">Berbasis Web menggunakan Algoritma Naive Bayes dengan Teknik Natural Language Processing</p>
+        
+        <div class="illustration-container text-center mb-4">
+            <img src="{{ url_for('static', filename='img/GambarHalaman1.png') }}" style="width: 220px; height: auto;" alt="Ilustrasi Pembuka">
+        </div>
+        
+        <div class="quote-box">
+            “Kadang kita cuma butuh tempat untuk bercerita.”
+        </div>
+        
+        <button type="button" class="btn btn-purple-main" onclick="goToStep2()">
+            Mulai Cerita <i class="fa-solid fa-arrow-right ms-2"></i>
+        </button>
+    </div>
+
+    <div class="form-section" id="section2">
+        <div class="navbar-custom">
+            <div class="nav-logo">
+                <i class="fa-solid fa-brain" style="color: #6c63ff;"></i> <strong>StressCare</strong>
+            </div>
+            <ul class="nav-links">
+                <li><a href="javascript:void(0)" id="nav-beranda" class="active" onclick="switchSubTab('beranda')">Beranda</a></li>
+                <li><a href="javascript:void(0)" id="nav-tentang" onclick="switchSubTab('tentang')">Tentang</a></li>
+                <li><a href="javascript:void(0)" id="nav-fitur" onclick="switchSubTab('fitur')">Fitur</a></li>
+                <li><a href="javascript:void(0)" id="nav-info" onclick="switchSubTab('info')">Info</a></li>
+            </ul>
+        </div>
+        
+        <div class="dashboard-content-wrapper" style="min-height: 380px;">
+            <div id="subtab-beranda" class="subtab-content-item">
+                <div class="dashboard-grid">
+                    <div>
+                        <h3 class="welcome-title">Hai, Selamat Datang!👋</h3>
+                        <h4 class="welcome-title" style="margin-top: -5px; color: #6c63ff; margin-bottom: 12px;">Di StressCare</h4>
+                        <p class="welcome-subtitle">Tempat aman untuk kamu bercerita dan membantu mengenali tingkat stres yang kamu alami.</p>
+                        
+                        <div class="feature-list">
+                            <div class="feature-item">
+                                <div class="feature-icon-box"><i class="fa-solid fa-comment-dots"></i></div>
+                                <div class="feature-text">Ceritakan apa yang kamu rasakan</div>
+                            </div>
+                            <div class="feature-item">
+                                <div class="feature-icon-box"><i class="fa-solid fa-heart-pulse"></i></div>
+                                <div class="feature-text">Analisis tingkat stres secara otomatis</div>
+                            </div>
+                            <div class="feature-item">
+                                <div class="feature-icon-box"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
+                                <div class="feature-text">Dapatkan saran dan dukungan positif</div>
+                            </div>
+                        </div>
+                        
+                        <button type="button" class="btn btn-purple-wide" onclick="goToStep3()">
+                            Mulai Sekarang <i class="fa-solid fa-arrow-right ms-2"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="illustration-right-box">
+                        <img src="{{ url_for('static', filename='img/GambarHalaman2.png') }}" class="img-dashboard-vector" style="max-width: 360px; height: auto; border-radius: 20px;" alt="Dashboard Illustration">
+                    </div>
+                </div>
+            </div>
+
+            <div id="subtab-tentang" class="subtab-content-item d-none">
+                <div class="dashboard-section-box p-4" style="background: #ffffff; border: 1.5px solid #f1f5f9; border-radius: 18px;">
+                    <h5 class="section-box-title" style="font-size: 16px; font-weight: 700; color: #1e293b; margin-bottom: 15px;">
+                        <i class="fa-solid fa-circle-info me-2" style="color: #6c63ff;"></i> Tentang Aplikasi & Metodologi
+                    </h5>
+                    <p class="section-box-text" style="font-size: 13.5px; color: #475569; line-height: 1.6; margin-bottom: 12px;">
+                        <strong>StressCare</strong> merupakan sistem platform berbasis web yang dikembangkan untuk mendeteksi tingkat tekanan stres pada mahasiswa secara dini. 
+                        Melalui pendekatan teknologi <em>Natural Language Processing</em> (NLP), sistem akan melakukan ekstraksi teks atau *preprocessing* (case folding, filtering, stemming, tokenizing) pada data cerita atau curhatan mahasiswa.
+                    </p>
+                    <p class="section-box-text" style="font-size: 13.5px; color: #475569; line-height: 1.6; margin-bottom: 0;">
+                        Klasifikasi tingkat stres dibagi menjadi 3 kategori utama, yaitu <strong>Ringan, Sedang, dan Tinggi</strong> yang dihitung menggunakan <strong>Algoritma Naive Bayes Classifier</strong> berdasarkan pembobotan kata dari pola data latih yang telah ditentukan sebelumnya.
+                    </p>
+                </div>
+            </div>
+
+            <div id="subtab-fitur" class="subtab-content-item d-none">
+                <div>
+                    <h5 class="section-box-title mb-3" style="font-size: 16px; font-weight: 700; color: #1e293b;"><i class="fa-solid fa-cubes me-2" style="color: #6c63ff;"></i> Fitur Unggulan Sistem</h5>
+                    <div class="row row-cols-1 row-cols-md-3 g-3">
+                        <div class="col">
+                            <div class="card h-100 p-3 border-1 border-light-subtle" style="border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.01);">
+                                <div class="fs-3 mb-2" style="color: #6c63ff;"><i class="fa-regular fa-comments"></i></div>
+                                <h6 class="fw-bold" style="font-size: 14px; color: #1e293b;">Ruang Cerita Bebas</h6>
+                                <p class="text-muted" style="font-size: 12px; line-height: 1.5; margin: 0;">Input teks ekspresif hingga 2000 karakter yang menjamin privasi penuh data identitas pengguna.</p>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="card h-100 p-3 border-1 border-light-subtle" style="border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.01);">
+                                <div class="fs-3 mb-2" style="color: #10b981;"><i class="fa-solid fa-microchip"></i></div>
+                                <h6 class="fw-bold" style="font-size: 14px; color: #1e293b;">Prediksi Naive Bayes</h6>
+                                <p class="text-muted" style="font-size: 12px; line-height: 1.5; margin: 0;">Pemrosesan kecerdasan komputasi teks yang memberikan klasifikasi level stres secara cepat.</p>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="card h-100 p-3 border-1 border-light-subtle" style="border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.01);">
+                                <div class="fs-3 mb-2" style="color: #f59e0b;"><i class="fa-regular fa-clock"></i></div>
+                                <h6 class="fw-bold" style="font-size: 14px; color: #1e293b;">Jejak Riwayat Nyata</h6>
+                                <p class="text-muted" style="font-size: 12px; line-height: 1.5; margin: 0;">Penyimpanan otomatis jejak hasil analisis stres secara dinamis menggunakan memori session.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="subtab-info" class="subtab-content-item d-none">
+                <div class="dashboard-section-box p-4" style="background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 18px;">
+                    <h5 class="section-box-title" style="font-size: 16px; font-weight: 700; color: #1e293b; margin-bottom: 20px;">
+                        <i class="fa-solid fa-graduation-cap me-2" style="color: #6c63ff;"></i> Informasi Penelitian Tugas Akhir
+                    </h5>
+                    
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 20px; font-size: 13.5px;">
+                        <div style="flex: 1; min-width: 250px; text-align: left;">
+                            <p class="mb-1" style="font-weight: 600; color: #475569; font-size: 15px;">Sistem Prediksi Tingkat Stres Mahasiswa</p>
+                            <p class="m-0" style="font-weight: 500; color: #64748b;">Program Studi Teknik Informatika</p>
+                            <p class="m-0" style="font-weight: 500; color: #64748b;">Fakultas Teknik</p>
+                            <p class="mb-4" style="font-style: italic; color: #94a3b8;">Universitas Cendekia Abditama</p>
+                            
+                            <div style="margin-top: 15px;">
+                                <p class="mb-0" style="font-weight: 600; color: #6c63ff; font-size: 12px;">Dosen Pembimbing:</p>
+                                <p class="m-0" style="font-weight: 600; color: #1e293b; font-size: 14px;">Dr. Muhammad Subali, S.Si, M.T.</p>
+                            </div>
+                        </div>
+
+                        <div style="display: flex; flex-direction: column; justify-content: space-between; min-height: 200px; text-align: right; min-width: 150px; margin-top: -10px;">
+                            <div style="display: flex; justify-content: center; width: 100%; margin-bottom: 20px;">
+                                <img src="{{ url_for('static', filename='img/logo_kampus.png') }}" style="width: 105px; height: auto; display: block;" alt="Logo UCA">
+                            </div>
+                            <div style="margin-top: auto; width: 100%;">
+                                <p class="mb-0" style="font-weight: 600; color: #6c63ff; font-size: 12px;">Oleh Peneliti:</p>
+                                <p class="mb-1" style="font-weight: 700; color: #1e293b; font-size: 15px;">Alya Siva Erdana</p>
+                                <small style="color: #94a3b8; font-size: 11px; display: block;">Hak Cipta © 2026 All Rights Reserved.</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="bottom-info-banner mt-4">
+            Sistem ini dirancang untuk membantu mahasiswa memahami kondisi stres mereka melalui analisis teks curhatan menggunakan NLP.
+        </div>
+    </div>
+
+    <div class="form-section" id="section3">
+        <div class="d-flex align-items-center mb-4">
+            <button type="button" class="btn btn-link text-secondary text-decoration-none p-0" onclick="moveStep(2)" style="font-size: 14px; font-weight: 500;">
+                <i class="fa-solid fa-arrow-left me-1"></i> Kembali
+            </button>
+            
+            <div class="flex-grow-1 d-flex justify-content-center align-items-center position-relative ms-3" style="max-width: 300px; margin: 0 auto;">
+                <div style="position: absolute; width: 100%; height: 2px; background: #e2e8f0; top: 10px; z-index: 1;"></div>
+                <div style="position: absolute; width: 0%; height: 2px; background: #6c63ff; top: 10px; left: 0; z-index: 1;"></div>
+                
+                <div class="text-center position-relative" style="z-index: 2; width: 33.33%;">
+                    <div style="width: 20px; height: 20px; background: #6c63ff; border: 4px solid #ffffff; border-radius: 50%; margin: 0 auto; box-shadow: 0 0 0 4px rgba(108, 99, 255, 0.2);"></div>
+                    <span style="font-size: 11px; font-weight: 600; color: #1e293b; display: block; margin-top: 4px;">Identitas</span>
+                </div>
+                <div class="text-center position-relative" style="z-index: 2; width: 33.33%;">
+                    <div style="width: 14px; height: 14px; background: #e2e8f0; border: 3px solid #ffffff; border-radius: 50%; margin: 3px auto;"></div>
+                    <span style="font-size: 11px; font-weight: 500; color: #94a3b8; display: block; margin-top: 7px;">Cerita</span>
+                </div>
+                <div class="text-center position-relative" style="z-index: 2; width: 33.33%;">
+                    <div style="width: 14px; height: 14px; background: #e2e8f0; border: 3px solid #ffffff; border-radius: 50%; margin: 3px auto;"></div>
+                    <span style="font-size: 11px; font-weight: 500; color: #94a3b8; display: block; margin-top: 7px;">Hasil</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="text-center mb-4">
+            <h4 style="font-weight: 700; color: #1e293b; font-size: 20px;">Sebelum mulai, isi data dirimu dulu ya 😊</h4>
+            <p style="color: #64748b; font-size: 13px; margin: 0;">Data yang kamu berikan bersifat anonim dan rahasia.</p>
+        </div>
+
+        <div class="row g-3 mb-4">
+            <div class="col-md-7">
+                <label class="form-label" style="font-size: 12.5px; font-weight: 600; color: #334155;">Nama atau Nama Samaran</label>
+                <input type="text" id="identitasNama" class="form-control" style="border-radius: 12px; padding: 11px 15px; border: 1.5px solid #e2e8f0; font-size: 13.5px;" placeholder="Masukkan nama atau nama samaran" required>
+            </div>
+            <div class="col-md-5">
+                <label class="form-label" style="font-size: 12.5px; font-weight: 600; color: #334155;">Umur</label>
+                <input type="number" id="identitasUmur" class="form-control" style="border-radius: 12px; padding: 11px 15px; border: 1.5px solid #e2e8f0; font-size: 13.5px;" placeholder="Contoh: 20" required>
+            </div>
+            <div class="col-md-7">
+                <label class="form-label" style="font-size: 12.5px; font-weight: 600; color: #334155;">Semester</label>
+                <select id="identitasSemester" class="form-select" style="border-radius: 12px; padding: 11px 15px; border: 1.5px solid #e2e8f0; font-size: 13.5px; color: #475569;" required>
+                    <option value="">Pilih semester</option>
+                    <option value="1">Semester 1</option><option value="2">Semester 2</option><option value="3">Semester 3</option><option value="4">Semester 4</option>
+                    <option value="5">Semester 5</option><option value="6">Semester 6</option><option value="7">Semester 7</option><option value="8">Semester 8 keatas</option>
+                </select>
+            </div>
+            <div class="col-md-5">
+                <label class="form-label d-block" style="font-size: 12.5px; font-weight: 600; color: #334155;">Jenis Kelamin</label>
+                <div class="mt-2">
+                    <div class="form-check form-check-inline me-3">
+                        <input class="form-check-input" type="radio" name="jkRadio" id="jkL" value="Laki-laki" checked>
+                        <label class="form-check-label" for="jkL" style="font-size: 13px; font-weight: 500; color: #334155;">Laki-laki</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="jkRadio" id="jkP" value="Perempuan">
+                        <label class="form-check-label" for="jkP" style="font-size: 13px; font-weight: 500; color: #334155;">Perempuan</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <button type="button" class="btn btn-purple-main mb-4" onclick="goToStep4()" style="background: #6c63ff; border-radius: 14px; padding: 14px; font-size: 14px;">
+            Lanjutkan <i class="fa-solid fa-arrow-right ms-1"></i>
+        </button>
+
+        <div style="background-color: #f8fafc; border-radius: 12px; padding: 12px 15px; text-align: center; color: #475569; font-size: 12px; border: 1px solid #f1f5f9;">
+            <i class="fa-solid fa-lock text-secondary me-1"></i> Data kamu aman dan hanya digunakan untuk keperluan analisis.
+        </div>
+    </div>
+
+    <div class="form-section" id="section4">
+        <div class="d-flex align-items-center mb-4">
+            <button type="button" class="btn btn-link text-secondary text-decoration-none p-0" onclick="moveStep(3)" style="font-size: 14px; font-weight: 500;">
+                <i class="fa-solid fa-arrow-left me-1"></i> Kembali
+            </button>
+            
+            <div class="flex-grow-1 d-flex justify-content-center align-items-center position-relative ms-3" style="max-width: 300px; margin: 0 auto;">
+                <div style="position: absolute; width: 100%; height: 2px; background: #e2e8f0; top: 10px; z-index: 1;"></div>
+                <div style="position: absolute; width: 50%; height: 2px; background: #6c63ff; top: 10px; left: 0; z-index: 1;"></div>
+                
+                <div class="text-center position-relative" style="z-index: 2; width: 33.33%;">
+                    <div style="width: 14px; height: 14px; background: #6c63ff; border: 3px solid #ffffff; border-radius: 50%; margin: 3px auto;"></div>
+                    <span style="font-size: 11px; font-weight: 500; color: #94a3b8; display: block; margin-top: 7px;">Identitas</span>
+                </div>
+                <div class="text-center position-relative" style="z-index: 2; width: 33.33%;">
+                    <div style="width: 20px; height: 20px; background: #6c63ff; border: 4px solid #ffffff; border-radius: 50%; margin: 0 auto; box-shadow: 0 0 0 4px rgba(108, 99, 255, 0.2);"></div>
+                    <span style="font-size: 11px; font-weight: 600; color: #1e293b; display: block; margin-top: 4px;">Cerita</span>
+                </div>
+                <div class="text-center position-relative" style="z-index: 2; width: 33.33%;">
+                    <div style="width: 14px; height: 14px; background: #e2e8f0; border: 3px solid #ffffff; border-radius: 50%; margin: 3px auto;"></div>
+                    <span style="font-size: 11px; font-weight: 500; color: #94a3b8; display: block; margin-top: 7px;">Hasil</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="mb-4">
+            <h4 style="font-weight: 700; color: #1e293b; font-size: 22px; margin-bottom: 8px;">Ceritakan yang sedang kamu rasakan ❤️</h4>
+            <p style="color: #64748b; font-size: 13.5px; line-height: 1.5; margin: 0;">
+                Tuliskan apa yang sedang kamu pikirkan atau rasakan akhir-akhir ini. Tidak ada benar atau salah, tulis saja sesuai hati kamu.
+            </p>
+        </div>
+
+        <form id="stressForm">
+            <div class="mb-2 position-relative">
+                <textarea id="curhatan" class="form-control" maxlength="2000" rows="6" placeholder="Aku merasa akhir-akhir ini..." style="border-radius: 14px; padding: 15px; border: 1.5px solid #e2e8f0; font-size: 14px; line-height: 1.6; resize: none;" required></textarea>
+            </div>
+            
+            <div class="text-end mb-4" style="font-size: 12px; color: #94a3b8; font-weight: 500;">
+                <span id="charCount">0</span> / 2000 karakter
+            </div>
+
+            <div class="d-flex align-items-start p-3 mb-4" style="background-color: #f5f4ff; border-radius: 14px; border: 1px solid #eef2f6;">
+                <div class="me-3" style="color: #6c63ff; font-size: 18px; margin-top: 2px;">
+                    <i class="fa-regular fa-lightbulb"></i>
+                </div>
+                <div style="font-size: 12.5px; color: #475569; line-height: 1.5;">
+                    <strong>Tips:</strong> Semakin jujur kamu menuliskan cerita, semakin akurat sistem memahami tingkat stres yang kamu alami.
+                </div>
+            </div>
+
+            <button type="submit" id="submitBtn" class="btn btn-purple-main" style="background: #6c63ff; border-radius: 14px; padding: 14px; font-size: 15px; font-weight: 600;">
+                Analisis Tingkat Stres <i class="fa-solid fa-wand-magic-sparkles ms-1"></i>
+            </button>
+        </form>
+    </div>
+
+    <div class="form-section" id="section5">
+        <div class="d-flex align-items-center mb-4">
+            <button type="button" class="btn btn-link text-secondary text-decoration-none p-0" onclick="moveStep(4)" style="font-size: 14px; font-weight: 500;">
+                <i class="fa-solid fa-arrow-left me-1"></i> Kembali
+            </button>
+            
+            <div class="flex-grow-1 d-flex justify-content-center align-items-center position-relative ms-3" style="max-width: 300px; margin: 0 auto;">
+                <div style="position: absolute; width: 100%; height: 2px; background: #e2e8f0; top: 10px; z-index: 1;"></div>
+                <div style="position: absolute; width: 100%; height: 2px; background: #6c63ff; top: 10px; left: 0; z-index: 1;"></div>
+                
+                <div class="text-center position-relative" style="z-index: 2; width: 33.33%;">
+                    <div style="width: 14px; height: 14px; background: #6c63ff; border: 3px solid #ffffff; border-radius: 50%; margin: 3px auto;"></div>
+                    <span style="font-size: 11px; font-weight: 500; color: #94a3b8; display: block; margin-top: 7px;">Identitas</span>
+                </div>
+                <div class="text-center position-relative" style="z-index: 2; width: 33.33%;">
+                    <div style="width: 14px; height: 14px; background: #6c63ff; border: 3px solid #ffffff; border-radius: 50%; margin: 3px auto;"></div>
+                    <span style="font-size: 11px; font-weight: 500; color: #94a3b8; display: block; margin-top: 7px;">Cerita</span>
+                </div>
+                <div class="text-center position-relative" style="z-index: 2; width: 33.33%;">
+                    <div style="width: 20px; height: 20px; background: #6c63ff; border: 4px solid #ffffff; border-radius: 50%; margin: 0 auto; box-shadow: 0 0 0 4px rgba(108, 99, 255, 0.2);"></div>
+                    <span style="font-size: 11px; font-weight: 600; color: #1e293b; display: block; margin-top: 4px;">Hasil</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="text-center mb-4">
+            <h4 style="font-weight: 700; color: #1e293b; font-size: 22px; margin-bottom: 5px;">Hasil Analisis</h4>
+            <p style="color: #64748b; font-size: 13px;">Berdasarkan cerita yang kamu tuliskan, sistem mendeteksi tingkat stres pada kategori:</p>
+        </div>
+
+        <div id="boxDiagnosisBesar" class="p-4 mb-4 text-center" style="border-radius: 20px; border: 1.5px solid #f1f5f9; background-color: #ffffff;">
+            <div class="d-flex align-items-center justify-content-center gap-3 mb-3">
+                <span id="emojiHasil" style="font-size: 55px;">😐</span>
+                <h3 style="font-weight: 700; color: #1e293b; margin: 0; font-size: 24px;">
+                    Tingkat Stres <span id="textLevelStres" style="color: #f59e0b;">Sedang</span>
+                </h3>
+            </div>
+            <p id="deskripsiHasil" style="font-size: 13.5px; color: #475569; line-height: 1.6; margin: 0; padding: 0 10px;">
+                Kamu mungkin sedang merasakan tekanan yang cukup berarti. Penting untuk meluangkan waktu beristirahat dan melakukan hal-hal yang membuatmu nyaman.
+            </p>
+        </div>
+
+        <div class="mb-4">
+            <h6 style="font-size: 13px; font-weight: 700; color: #1e293b; margin-bottom: 12px;">Indikator yang Memengaruhi</h6>
+            <div class="d-flex flex-wrap gap-2">
+                <span class="badge" style="background-color: #f1f0ff; color: #6c63ff; padding: 8px 14px; border-radius: 30px; font-size: 12px; font-weight: 500;">Tugas / Akademik</span>
+                <span class="badge" style="background-color: #f1f0ff; color: #6c63ff; padding: 8px 14px; border-radius: 30px; font-size: 12px; font-weight: 500;">Kelelahan</span>
+                <span class="badge" style="background-color: #f1f0ff; color: #6c63ff; padding: 8px 14px; border-radius: 30px; font-size: 12px; font-weight: 500;">Tekanan Waktu</span>
+                <span class="badge" style="background-color: #f1f0ff; color: #6c63ff; padding: 8px 14px; border-radius: 30px; font-size: 12px; font-weight: 500;">Overthinking</span>
+            </div>
+        </div>
+
+        <div class="d-flex align-items-center p-3 mb-4" style="background-color: #fcfbff; border-radius: 16px; border: 1px solid #f1f0ff;">
+            <div class="me-3 d-flex align-items-center justify-content-center" style="width: 36px; height: 36px; background-color: #f0efff; border-radius: 50%; color: #6c63ff;">
+                <i class="fa-regular fa-heart"></i>
+            </div>
+            <div style="font-size: 13px; color: #475569; font-weight: 500;">
+                Ingat, kamu tidak sendiri. Istirahat sejenak itu penting untuk kesehatan mentalmu 💜
+            </div>
+        </div>
+
+        <button type="button" class="btn btn-purple-main" onclick="goToStep6()" style="background: #6c63ff; border-radius: 14px; padding: 14px; font-size: 14px; font-weight: 600;">
+            Lihat Rekomendasi Solusi <i class="fa-solid fa-arrow-right ms-2"></i>
+        </button>
+    </div>
+
+    <div class="form-section" id="section6">
+        <div class="d-flex align-items-center mb-4">
+            <button type="button" class="btn btn-link text-secondary text-decoration-none p-0" onclick="moveStep(5)" style="font-size: 14px; font-weight: 500;">
+                <i class="fa-solid fa-arrow-left me-1"></i> Kembali
+            </button>
+        </div>
+
+        <div class="text-center mb-4">
+            <h4 style="font-weight: 700; color: #1e293b; font-size: 22px; margin-bottom: 5px;">Temani Kamu Hari Ini 🌱</h4>
+            <p style="color: #64748b; font-size: 13px; margin: 0;">Mari mengobrol santai sejenak untuk meredakan beban pikiranmu:</p>
+        </div>
+
+        <div class="chat-container-box mb-4">
+            <div class="d-flex align-items-start gap-3">
+                <div class="robot-animation flex-shrink-0" style="margin-top: 5px;">
+                    <i class="fa-solid fa-robot" style="font-size: 32px; color: #6c63ff;"></i>
+                </div>
+                <div id="botChatBubble" class="bot-bubble flex-grow-1">
+                    Memuat ruang percakapan konseling...
+                </div>
+            </div>
+
+            <div id="chatOptionsGrid" class="options-grid mt-2"></div>
+        </div>
+
+        <button type="button" class="btn btn-purple-main w-100" onclick="goToStep7()" style="background: #6c63ff; border-radius: 14px; padding: 14px; font-size: 14px; font-weight: 600;">
+            Lihat Riwayat Analisis <i class="fa-solid fa-arrow-right ms-2"></i>
+        </button>
+    </div>
+
+    <div class="form-section" id="section7">
+        <div class="d-flex align-items-center mb-4">
+            <button type="button" class="btn btn-link text-secondary text-decoration-none p-0" onclick="moveStep(6)" style="font-size: 14px; font-weight: 500;">
+                <i class="fa-solid fa-arrow-left me-1"></i> Kembali
+            </button>
+        </div>
+
+        <div class="mb-4">
+            <h4 style="font-weight: 700; color: #1e293b; font-size: 22px; margin-bottom: 5px;">Riwayat Analisis</h4>
+            <p style="color: #64748b; font-size: 13px; margin: 0;">Berikut riwayat analisis stres yang pernah kamu lakukan.</p>
+        </div>
+
+        <div id="daftarRiwayatContainer" class="d-flex flex-column gap-3 mb-4">
+            <div class="text-center text-muted small my-4">Belum ada riwayat analisis stres.</div>
+        </div>
+
+        <button type="button" class="btn btn-outline-danger w-100 mb-3" onclick="hapusSemuaRiwayat()" style="border-radius: 14px; padding: 13px; font-size: 13.5px; font-weight: 600; border-style: dashed;">
+            <i class="fa-regular fa-trash-can me-2"></i> Hapus Riwayat
+        </button>
+
+        <button type="button" class="btn btn-purple-main w-100" onclick="kembaliKeBeranda()" style="background: #1e293b; border-radius: 14px; padding: 14px; font-size: 14px; font-weight: 600;">
+            <i class="fa-solid fa-house me-2" style="font-size: 12px;"></i> Kembali ke Beranda
+        </button>
+    </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>
