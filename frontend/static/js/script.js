@@ -12,7 +12,7 @@ const flowDatabase = {
             ]
         },
         kontrol: {
-            text: "Keren banget! Berarti manajemen emosimu udah oke. Tapi, biasanya apa nih hal kecil yang paling sering bikin kamu kepikiran akhir-akhir ini? 🤔",
+            text: "Keren banget! Berarat manajemen emosimu udah oke. Tapi, biasanya apa nih hal kecil yang paling sering bikin kamu kepikiran akhir-akhir ini? 🤔",
             options: [
                 { text: "Tugas kuliah mulai numpuk dikit 📚", next: "tugas" },
                 { text: "Jam tidur agak berantakan nih 😴", next: "tidur" }
@@ -114,6 +114,7 @@ const flowDatabase = {
             text: "Cobalah cari playlist 'Binaural Beats Delta Waves' atau suara gemercik air hujan di YouTube/Spotify. Gelombang suaranya dirancang khusus buat nurunin frekuensi stres di sel otak kamu.",
             options: [{ text: "Okey, mau aku dengerin sekarang 🎧", next: "finish" }]
         },
+        boxBreathing: {}, // Sesuai file asli
         solusiTugas: {
             text: "Kalau lagi burnout, jangan liat tugas sebagai satu gunung besar. Pecah jadi kepingan kecil. Bilang ke diri sendiri: 'Aku cuma mau baca satu paragraf aja/ngetik 2 kalimat aja hari ini.' Berani coba cara cicil super kecil ini?",
             options: [{ text: "Oke, dicoba pelan-pelan 🤏", next: "finish" }]
@@ -327,6 +328,7 @@ document.getElementById('stressForm').addEventListener('submit', function(e) {
     });
 });
 
+// ─── BAGIAN PERBAIKAN: TOMBOL LIHAT DETAIL SUDAH DIHAPUS ───
 function renderRiwayatNyata(daftarRiwayat) {
     const container = document.getElementById('daftarRiwayatContainer');
     if (!container) return;
@@ -357,7 +359,6 @@ function renderRiwayatNyata(daftarRiwayat) {
                             <span style="font-size: 11.5px; color: #94a3b8;">${item.waktu}</span>
                         </div>
                     </div>
-                    <button type="button" class="btn btn-sm px-3 py-2" style="background-color: #f1f0ff; border-radius: 10px; font-size: 12px; color: #6c63ff; border: none;">Lihat Detail</button>
                 </div>
             </div>`;
         container.innerHTML += cardHtml;
