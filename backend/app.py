@@ -4,6 +4,7 @@ import pickle
 import re
 import os
 from deep_translator import GoogleTranslator
+from supabase import create_client, Client  # 💡 Menggunakan library resmi Supabase Cloud
 
 # Mengambil jalur absolut dari folder tempat file app.py ini berada
 base_dir = os.path.dirname(os.path.abspath(__file__))
@@ -23,6 +24,13 @@ with open(model_path, "rb") as f:
 
 with open(vkt_path, "rb") as f:
     tfidf = pickle.load(f)
+
+# 💡 Kredensial & Inisialisasi Koneksi ke Supabase Cloud Database
+SUPABASE_URL = "https://bvdnsxknhedtudpearza.supabase.co"
+# GANTI teks di bawah ini dengan key panjang (Publishable key) yang sudah kamu copy ke Notepad tadi ya!
+SUPABASE_KEY = "sb_publishable_w_wBj9WOcTDyoas7RybRUw_TlO4IXyb" 
+
+supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 def clean_input(text):
     if not isinstance(text, str):
@@ -52,11 +60,9 @@ def hitung_tingkat_stres_ml(teks_indonesia):
         return "Ringan"
 
     # 3. KALIBRASI KATA MANUAL UNTUK KELUHAN RINGAN (Seperti "cape dikit")
-    # Jika mengeluh capek/pusing tapi ada kata penurun intensitas seperti "dikit", "biasa", "wajar"
     kata_keluhan_ringan = ["cape", "capek", "lelah", "pusing", "jenuh"]
     kata_penurun = ["dikit", "sedikit", "biasa", "wajar", "aja", "doang"]
     if any(k in teks_bersih_id for k in kata_keluhan_ringan) and any(p in teks_bersih_id for p in kata_penurun):
-        # Biarkan masuk ke Sedang atau Ringan, jangan biarkan tembus ke Tinggi
         pass
 
     # 4. PROSES TRANSLASI KE BAHASA INGGRIS
@@ -79,16 +85,45 @@ def hitung_tingkat_stres_ml(teks_indonesia):
 
     # 6. LOGIKA PENENTUAN SKALA YANG LEBIH ADIL DAN TIDAK SENSITIF
     if str(prediksi_kelas) == "1" or prediksi_kelas == 1:
-        # Naikkan batas minimal ke 0.80 agar keluhan biasa/kecil tidak gampang lompat ke "Tinggi"
         if max_prob >= 0.80:
             return "Tinggi"
         else:
             return "Sedang"
     else:
-        # Jika model memprediksi kelas 0 (normal)
         if max_prob < 0.60:
             return "Sedang"
         return "Ringan"
+
+# 💡 Fungsi untuk mengambil riwayat terupdate dari database Supabase secara nyata
+def ambil_riwayat_dari_db():
+    try:
+        # Mengambil data dari tabel Supabase, diurutkan berdasarkan waktu input terbaru
+        response = supabase.table("riwayat_prediksi").select("*").order("waktu_input", desc=True).execute()
+        rows = response.data
+        
+        # Penyesuaian nama key agar sesuai dengan format JavaScript di frontend kamu (hasil & waktu)
+        data_frontend = []
+        for r in rows:
+            waktu_indo = "-"
+            if 'waktu_input' in r and r['waktu_input']:
+                # Mengubah format string ISO timestamp dari Supabase cloud ke objek waktu Python
+                dt = datetime.fromisoformat(r['waktu_input'].replace('Z', '+00:00'))
+                hari_indo = ["Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu", "Minggu"]
+                bulan_indo = ["", "Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"]
+                
+                nama_hari = hari_indo[dt.weekday()]
+                nama_bulan = bulan_indo[dt.month]
+                waktu_indo = f"{nama_hari}, {dt.day} {nama_bulan} {dt.year} - {dt.strftime('%H:%M')}"
+
+            data_frontend.append({
+                'hasil': r.get('hasil_prediksi', 'Ringan'),
+                'waktu': waktu_indo
+            })
+            
+        return data_frontend
+    except Exception as e:
+        print(f"Gagal mengambil data dari Supabase: {e}")
+        return []
 
 @app.route('/')
 def index():
@@ -98,43 +133,48 @@ def index():
 def predict():
     curhatan = request.form.get('curhatan')
     
+    # 💡 Mengambil identitas dari form HTML
+    nama = request.form.get('nama', 'Anonim')
+    umur = request.form.get('umur', 0)
+    semester = request.form.get('semester', 'Tidak Diketahui')
+    jenis_kelamin = request.form.get('jenis_kelamin', 'Laki-laki')
+    
     if not curhatan:
         return jsonify({
             'hasil_prediksi': 'Ringan', 
-            'daftar_riwayat_nyata': session.get('riwayat_stres', [])
+            'daftar_riwayat_nyata': ambil_riwayat_dari_db()
         })
     
     hasil_prediksi = hitung_tingkat_stres_ml(curhatan)
         
-    hari_id = ["Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu", "Minggu"]
-    bulan_id = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"]
-    
-    now = datetime.now()
-    hari_nama = hari_id[now.weekday()]
-    bulan_nama = bulan_id[now.month - 1]
-    waktu_str = f"{hari_nama}, {now.day} {bulan_nama} {now.year} - {now.strftime('%H:%M')}"
-    
-    if 'riwayat_stres' not in session:
-        session['riwayat_stres'] = []
-        
-    data_baru = {
-        'hasil': hasil_prediksi,
-        'waktu': waktu_str
-    }
-    
-    list_riwayat = session['riwayat_stres']
-    list_riwayat.insert(0, data_baru)
-    session['riwayat_stres'] = list_riwayat
-    session.modified = True 
+    # 💡 Perintah menyimpan log keluhan ke database Supabase Cloud
+    try:
+        data_input = {
+            "nama": nama,
+            "umur": int(umur) if umur else 0,
+            "semester": semester,
+            "jenis_kelamin": jenis_kelamin,
+            "teks_keluhan": curhatan,
+            "hasil_prediksi": hasil_prediksi
+        }
+        supabase.table("riwayat_prediksi").insert(data_input).execute()
+    except Exception as e:
+        print(f"Gagal menyimpan ke Supabase: {e}")
     
     return jsonify({
         'hasil_prediksi': hasil_prediksi,
-        'daftar_riwayat_nyata': session['riwayat_stres']
+        'daftar_riwayat_nyata': ambil_riwayat_dari_db()
     })
 
 @app.route('/clear_history', methods=['POST'])
 def clear_history():
-    session.pop('riwayat_stres', None)
+    # 💡 Mengosongkan isi seluruh baris tabel di database Supabase secara nyata
+    try:
+        # Menghapus seluruh data dengan trik filter id lebih besar dari 0
+        supabase.table("riwayat_prediksi").delete().gt("id", 0).execute()
+    except Exception as e:
+        print(f"Gagal mengosongkan Supabase: {e}")
+        
     return jsonify({'status': 'success'})
 
 if __name__ == '__main__':

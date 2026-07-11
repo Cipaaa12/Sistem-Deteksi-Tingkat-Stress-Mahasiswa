@@ -114,7 +114,6 @@ const flowDatabase = {
             text: "Cobalah cari playlist 'Binaural Beats Delta Waves' atau suara gemercik air hujan di YouTube/Spotify. Gelombang suaranya dirancang khusus buat nurunin frekuensi stres di sel otak kamu.",
             options: [{ text: "Okey, mau aku dengerin sekarang 🎧", next: "finish" }]
         },
-        boxBreathing: {}, // Sesuai file asli
         solusiTugas: {
             text: "Kalau lagi burnout, jangan liat tugas sebagai satu gunung besar. Pecah jadi kepingan kecil. Bilang ke diri sendiri: 'Aku cuma mau baca satu paragraf aja/ngetik 2 kalimat aja hari ini.' Berani coba cara cicil super kecil ini?",
             options: [{ text: "Oke, dicoba pelan-pelan 🤏", next: "finish" }]
@@ -285,15 +284,15 @@ function kembaliKeBeranda() {
     moveStep(1);
 }
 
-// Event AJAX Form POST curhatan ke Backend Flask
+// 💡 EVENT AJAX DIBENAHI: SEKARANG MENGAMBIL SELURUH DATA DARI FORM SECARA OTOMATIS
 document.getElementById('stressForm').addEventListener('submit', function(e) {
     e.preventDefault();
     const btn = document.getElementById('submitBtn');
     btn.disabled = true;
     btn.innerHTML = 'Memproses Preprocessing & Naive Bayes... <i class="fa-solid fa-spinner fa-spin ms-1"></i>';
     
-    const formData = new FormData();
-    formData.append('curhatan', document.getElementById('curhatan').value);
+    // 💡 PERBAIKAN UTAMA: Mengambil seluruh elemen input di form stressForm (nama, umur, semester, jenis_kelamin, curhatan)
+    const formData = new FormData(this); 
     
     fetch('/predict', { method: 'POST', body: formData })
     .then(res => res.json())
@@ -328,7 +327,6 @@ document.getElementById('stressForm').addEventListener('submit', function(e) {
     });
 });
 
-// ─── BAGIAN PERBAIKAN: TOMBOL LIHAT DETAIL SUDAH DIHAPUS ───
 function renderRiwayatNyata(daftarRiwayat) {
     const container = document.getElementById('daftarRiwayatContainer');
     if (!container) return;
