@@ -3,6 +3,7 @@ from datetime import datetime
 import pickle
 import re
 import os
+import uuid  # 💡 Ditambahkan di paling atas untuk membuat ID unik user
 from deep_translator import GoogleTranslator
 from supabase import create_client, Client  # 💡 Menggunakan library resmi Supabase Cloud
 
@@ -27,9 +28,8 @@ with open(vkt_path, "rb") as f:
 
 # 💡 Kredensial & Inisialisasi Koneksi ke Supabase Cloud Database
 SUPABASE_URL = "https://bvdnsxknhedtudpearza.supabase.co"
-# GANTI teks di bawah ini dengan key panjang (Publishable key) yang sudah kamu copy ke Notepad tadi ya!
 SUPABASE_KEY = "sb_publishable_w_wBj9WOcTDyoas7RybRUw_TlO4IXyb" 
-
+# Mengaktifkan klien koneksi database
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 def clean_input(text):
@@ -94,11 +94,22 @@ def hitung_tingkat_stres_ml(teks_indonesia):
             return "Sedang"
         return "Ringan"
 
-# 💡 Fungsi untuk mengambil riwayat terupdate dari database Supabase secara nyata
+# 💡 Fungsi untuk mengambil riwayat terupdate dari database Supabase secara nyata per individual
 def ambil_riwayat_dari_db():
     try:
-        # Mengambil data dari tabel Supabase, diurutkan berdasarkan waktu input terbaru
-        response = supabase.table("riwayat_prediksi").select("*").order("waktu_input", desc=True).execute()
+        # Cek atau buat session_id unik untuk user aktif saat ini
+        if 'user_session_id' not in session:
+            session['user_session_id'] = str(uuid.uuid4())
+        
+        current_session_id = session['user_session_id']
+
+        # Mengambil data dari tabel Supabase, hanya yang session_id-nya COCOK dengan user saat ini
+        response = supabase.table("riwayat_prediksi")\
+            .select("*")\
+            .eq("session_id", current_session_id)\
+            .order("waktu_input", desc=True)\
+            .execute()
+            
         rows = response.data
         
         # Penyesuaian nama key agar sesuai dengan format JavaScript di frontend kamu (hasil & waktu)
@@ -149,13 +160,18 @@ def predict():
         
     # 💡 Perintah menyimpan log keluhan ke database Supabase Cloud
     try:
+        # Cek atau buat session_id unik untuk user aktif saat ini
+        if 'user_session_id' not in session:
+            session['user_session_id'] = str(uuid.uuid4())
+
         data_input = {
             "nama": nama,
             "umur": int(umur) if umur else 0,
             "semester": semester,
             "jenis_kelamin": jenis_kelamin,
             "teks_keluhan": curhatan,
-            "hasil_prediksi": hasil_prediksi
+            "hasil_prediksi": hasil_prediksi,
+            "session_id": session['user_session_id']  # Menyertakan penanda session user
         }
         supabase.table("riwayat_prediksi").insert(data_input).execute()
     except Exception as e:
@@ -168,10 +184,12 @@ def predict():
 
 @app.route('/clear_history', methods=['POST'])
 def clear_history():
-    # 💡 Mengosongkan isi seluruh baris tabel di database Supabase secara nyata
+    # 💡 Mengosongkan isi seluruh baris tabel di database Supabase secara nyata milik user saat ini
     try:
-        # Menghapus seluruh data dengan trik filter id lebih besar dari 0
-        supabase.table("riwayat_prediksi").delete().gt("id", 0).execute()
+        current_session_id = session.get('user_session_id')
+        if current_session_id:
+            # Hanya menghapus data riwayat yang memiliki session_id milik user yang mengklik
+            supabase.table("riwayat_prediksi").delete().eq("session_id", current_session_id).execute()
     except Exception as e:
         print(f"Gagal mengosongkan Supabase: {e}")
         
