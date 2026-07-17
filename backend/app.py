@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, jsonify, session
-from datetime import datetime
+from datetime import datetime, timedelta  # 💡 Ditambahkan timedelta untuk konversi zona waktu
 import pickle
 import re
 import os
@@ -119,12 +119,17 @@ def ambil_riwayat_dari_db():
             if 'waktu_input' in r and r['waktu_input']:
                 # Mengubah format string ISO timestamp dari Supabase cloud ke objek waktu Python
                 dt = datetime.fromisoformat(r['waktu_input'].replace('Z', '+00:00'))
+                
+                # 💡 KONVERSI KE WIB (UTC + 7 JAM)
+                dt_wib = dt + timedelta(hours=7)
+                
                 hari_indo = ["Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu", "Minggu"]
                 bulan_indo = ["", "Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"]
                 
-                nama_hari = hari_indo[dt.weekday()]
-                nama_bulan = bulan_indo[dt.month]
-                waktu_indo = f"{nama_hari}, {dt.day} {nama_bulan} {dt.year} - {dt.strftime('%H:%M')}"
+                nama_hari = hari_indo[dt_wib.weekday()]
+                nama_bulan = bulan_indo[dt_wib.month]
+                # Menggunakan dt_wib agar jam dan tanggalnya sinkron dengan waktu Indonesia lokal
+                waktu_indo = f"{nama_hari}, {dt_wib.day} {nama_bulan} {dt_wib.year} - {dt_wib.strftime('%H:%M')}"
 
             data_frontend.append({
                 'hasil': r.get('hasil_prediksi', 'Ringan'),
