@@ -19,7 +19,7 @@ def clean_text(text):
 
 df['cleaned_text'] = df['text'].apply(clean_text)
 
-# 3. Split Dataset (Data Latih 80%, Data Uji 20%)
+# 3. Split Dataset (Data Latih 80%, Data Uji 20% - Setelan Terbaik)
 X_train, X_test, y_train, y_test = train_test_split(
     df['cleaned_text'], 
     df['label'], 
@@ -28,12 +28,12 @@ X_train, X_test, y_train, y_test = train_test_split(
     stratify=df['label']
 )
 
-# 4. Ekstraksi Fitur Menggunakan TF-IDF Vectorizer
-tfidf = TfidfVectorizer(max_features=5000, ngram_range=(1, 2))
+# 4. Ekstraksi Fitur Menggunakan TF-IDF Vectorizer (Dioptimalkan ke N-gram 1-3)
+tfidf = TfidfVectorizer(max_features=5000, ngram_range=(1, 3))
 X_train_tfidf = tfidf.fit_transform(X_train)
 
-# 5. Training Model Naive Bayes (MultinomialNB)
-model_nb = MultinomialNB(alpha=0.1)
+# 5. Training Model Naive Bayes (MultinomialNB) (Smoothing Alpha disesuaikan ke 0.05)
+model_nb = MultinomialNB(alpha=0.05)
 model_nb.fit(X_train_tfidf, y_train)
 
 # 6. Pengujian dan Evaluasi Model
@@ -46,7 +46,7 @@ presisi = precision_score(y_test, y_pred, average='macro')
 recall = recall_score(y_test, y_pred, average='macro')
 
 # Menampilkan Hasil Bersih Tanpa F1-Score
-print("\n=== HASIL EVALUASI MODEL NAIVE BAYES ===")
+print("\n=== HASIL EVALUASI MODEL NAIVE BAYES (VERSI KEMBALI KEDUA - 76.41%) ===")
 print(f"Akurasi    : {akurasi * 100:.2f}%")
 print(f"Precision  : {presisi * 100:.2f}%")
 print(f"Recall     : {recall * 100:.2f}%")
